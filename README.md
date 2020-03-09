@@ -26,7 +26,7 @@
     -Make trips to the grocery store more productive
 
 ### Libraries used
-    **VUEJS       DJANGO      HTML5      CSS3      Spoonacular API**
+    **VUEJS       DJANGO      HTML5      CSS3      HAMMER.JS      Spoonacular API**
 
 ## Functionality
     

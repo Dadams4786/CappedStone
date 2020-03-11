@@ -7,8 +7,8 @@
     - lack of aesthetic skill (I don't want this thing to be an ugly baby)
 
 ## Name
-    - Untitled Food Game or: How I Learned to Stop Worrying and Love to Cook
-
+    - FÜDR
+    
 ## Project Overview
     
 ### Major features 
@@ -26,7 +26,7 @@
     -Make trips to the grocery store more productive
 
 ### Libraries used
-    **VUEJS       DJANGO      HTML5      CSS3      Spoonacular API**
+    **VUEJS       DJANGO      HTML5      CSS3      HAMMER.JS      Spoonacular API**
 
 ## Functionality
     

@@ -14,15 +14,23 @@ def recipes(request):
     # print(text)
     params = dict(request.GET)
     params['apiKey'] = spoon_key
-    params['number'] = 2
-    params['addRecipeInformation'] = True
+    params['number'] = 3
+    # params['addRecipeInformation'] = True
     response = requests.get('https://api.spoonacular.com/recipes/complexSearch', params=params)
     recipes = json.loads(response.text)
-    return JsonResponse(recipes)
+    return JsonResponse({'data': recipes})
 
-def cards(request):
+def randomRecipe(request):
     params = dict(request.GET)
     params['apiKey'] = spoon_key
-    response = request.get('https://api.spoonacular.com/recipes/visualizeRecipe', params=params)
-    recipe_cards = json.loads(response)
-    return JsonResponse(recipe_cards)
+    params['number'] = 3
+    response = requests.get('https://api.spoonacular.com/recipes/random', params=params)
+    randRecipe = json.loads(response.text)
+    return JsonResponse({'data': randRecipe})
+
+# def cards(request):
+#     params = dict(request.GET)
+#     params['apiKey'] = spoon_key
+#     response = requests.get('https://api.spoonacular.com/recipes/visualizeRecipe', params=params)
+#     recipe_cards = json.loads(response)
+#     return JsonResponse(recipe_cards)

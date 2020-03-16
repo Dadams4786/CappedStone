@@ -4,6 +4,7 @@ from . import views
 app_name='fudr'
 urlpatterns = [
     path('', views.index, name='index'),
-    path('recipes/', views.recipes, name='recipes')
-    patj('cards/', views.cards, name='cards')
+    path('recipes/', views.recipes, name='recipes'),
+    path('randomrecipe/', views.randomRecipe, name='randomRecipe'),
+    
 ]

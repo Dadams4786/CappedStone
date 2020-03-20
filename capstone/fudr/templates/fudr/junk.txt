@@ -1,0 +1,21 @@
+
+RANDOM/FILTER BUTTONS
+<v-btn v-on:click="getRandomRecipe">Random Search</v-btn>
+                <v-btn v-on:click="current_view = 'filters'">Filter Search</v-btn>
+                <v-btn v-on:click="current_view = 'list'">Shopping List</v-btn>
+            </v-content>
+            <v-content v-if="filter">
+                <v-btn v-on:click="clearFilters">Cancel</v-btn>
+                <v-btn v-on:click="getRecipes">Let's Go</v-btn>
+                <!--  -->
+                <!-- <v-select :items="meal" label="Meal" v-model="mealSelect">
+                </v-select> -->
+                <!-- [[mealSelect]] -->
+                <v-select :items="diet" label="Diet" v-model="dietSelect">
+                </v-select>
+                <!-- [[dietSelect]] -->
+                <v-select :items="intolerances" label="Intolerances" multiple v-model="intolerancesSelect">
+                </v-select>
+                <!-- [[intolerancesSelect]] -->
+                <!-- <v-select :items="cuisine" label="Cuisine" multiple v-model="cuisineSelect"> -->
+                <!-- </v-select> -->

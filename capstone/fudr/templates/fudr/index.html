@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 
@@ -13,15 +14,37 @@
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="{% static 'fudr/style.css' %}">
     <style>
+        .bigDiv {
+            max-width: 50vw;
+            margin: 0 auto;
+        }
+
+        .headerLogo {
+            margin: 10px;
+            padding: 10px;
+        }
+
+        .header {
+            max-height: 20vh;
+
+        }
+
         .flip-card {
             background-color: transparent;
             width: 500px;
             height: 500px;
-            border: 1px solid #f1f1f1;
-            perspective: 1000px;
-            align-items: center !important;
+            /* border: 1px solid #f1f1f1; */
+            /* perspective: 1000px; */
+            margin: 0 auto;
+
             /* Remove this if you don't want the 3D effect */
+        }
+
+        .nextLastButtons {
+            margin: 0 auto !important;
+            text-align: center;
         }
 
         /* This container is needed to position the front and back side */
@@ -58,7 +81,7 @@
 
         /* Style the back side */
         .flip-card-back {
-            background-color: dodgerblue;
+            background-color: black;
             color: white;
             transform: rotateY(180deg);
         }
@@ -68,68 +91,93 @@
 <body>
     <div id="app">
         <v-app>
-            <v-content v-if="current_view == 'cards'">
-                <v-btn v-on:click="current_view='main'">Home</v-btn>
-                <v-carousel height="80vh">
-                    <v-carousel-item v-for="recipe in recipeInfo[0]">
-                        <!-- Vuetify Card section use if flip doesn't work -->
-                        <!-- <v-card class="mx-auto white" max-width="60vw" >
-                            <v-img class="white--text align-end" height="30vh" v-bind:src="recipe.image">
-                                
-                            </v-img>
-                            <v-card-title class="black--text">[[recipe.title]]</v-card-title>
-                            <v-card-subtitle class="pb-0">Number 10</v-card-subtitle> -->
+            <div class="bigDiv">
+                <v-app-bar class="header" color="deep-purple accent-4" dense>
 
-                        <!-- <v-card-text class="text--primary">
-                                <p v-html="recipe.summary"></p>
-                                <div>Whitsunday Island, Whitsunday Islands</div>
-                            </v-card-text>
-                        </v-card> -->
-                        <v-card class="justify-center">
-                            <div class="flip-card">
-                                <div class="flip-card-inner">
-                                    <div class="flip-card-front">
-                                        <img v-bind:src="recipe.image" alt="Avatar" style="width:500px;height:500px;">
+                    <v-toolbar-title>
+                        <v-img class="headerLogo" src="{% static 'fudr/logo-B-transparent.png' %}" height="150" contain>
+                        </v-img>
+                    </v-toolbar-title>
 
+                    <v-spacer></v-spacer>
+                </v-app-bar>
+                <v-content v-if="current_view == 'cards'">
+                    <v-btn v-on:click="clearRecipes">Home</v-btn>
+                    <v-card max-width="45vw">
+                        <v-carousel v-model="model" hide-delimiters :continuous="false" height="80vh"
+                            :show-arrows="false">
+                            <v-carousel-item v-for="recipe in recipeInfo" height="80vh">
+                                <v-card class="justify-center" v-if="recipe">
+                                    <div class="flip-card">
+                                        <div class="flip-card-inner">
+                                            <div class="flip-card-front">
+                                                <img v-bind:src="recipe.image" alt="Avatar" style="width:500px;">
+                                                <p class="text-center">[[recipe.title]]</p>
+                                                <p>[[this.model]]</p>
+                                            </div>
+                                            <div class="flip-card-back">
+                                                <p class="text-left" v-html="recipe.summary"></p>
+                                            </div>
+                                        </div>
+                                        <div class="nextLastButtons">
+                                            <v-btn v-on:click="nextAdd">Sounds Good</v-btn>
+                                            <v-btn v-on:click="nextSkip">Nah</v-btn>
+
+                                        </div>
                                     </div>
-                                    <div class="flip-card-back">
-                                        <h2>[[recipe.title]]</h2>
-                                        <p class="text-left" v-html="recipe.instructions"></p>
-                                        <v-list>
-                                            <v-list-item v-for="(task, i) in recipe.extendedIngredients" :key="i">
-                                                <v-list-item-content v-text="task.originalString">
+                                </v-card>
+                    </v-card>
+                </v-content>
+                <v-content v-if="current_view == 'main'">
+                    <h4>Filter</h4>
+                    <v-switch v-model="filter_visible" @change="filterVisibleToggle"></v-switch>
+                    <v-expansion-panels v-model="filter_open_indices" multiple flat>
+                        <v-expansion-panel >
+                            <v-expansion-panel-content>
+                                <!--  -->
+                                <v-select :items="meal" label="Meal" v-model="mealSelect">
+                                </v-select>
+                                <!-- [[mealSelect]] -->
+                                <v-select :items="diet" label="Diet" v-model="dietSelect">
+                                </v-select>
+                                <!-- [[dietSelect]] -->
+                                <v-select :items="intolerances" label="Intolerances" multiple v-model="intolerancesSelect">
+                                </v-select>
+                                <!-- [[intolerancesSelect]] -->
+                            </v-expansion-panel-content>
+                        </v-expansion-panel>
+                    </v-expansion-panels>
+                    <v-btn @click="getRecipes">Start Searching</v-btn>
+                <v-btn @click="current_view='list'">Shopping List</v-btn>
+                </v-content>
 
-                                                </v-list-item-content>
-                                            </v-list-item>
-                                        </v-list>
-                                    </div>
-                                </div>
-                            </div>
+                
+                </v-content>
+                <v-content v-if="current_view == 'list'" id="list">
+                    <v-btn v-on:click="current_view='main'">Home</v-btn>
+                    <v-content>
+                        <v-card v-for="recipe in shoppingList">
+                            <h2>[[recipe.title]]</h2>
+                            <v-list dense>
+                                <v-subheader>Recipe</v-subheader>
+                                <v-list-item v-for="step in recipe.instructions">
+                                    [[step]]
+                                </v-list-item>
+                            </v-list>
+                            <v-subheader>Ingredients</v-subheader>
+                            <v-list dense>
+                                <v-list-item v-for="ingredient in recipe.ingredients">
+                                    [[ingredient]]
+                                </v-list-item>
+                            </v-list>
+
                         </v-card>
-                    </v-carousel-item>
-                </v-carousel>
-            </v-content>
-            <v-content v-if="current_view == 'main'">
-                <v-btn v-on:click="getRandomRecipe">Random Search</v-btn>
-                <v-btn v-on:click="current_view = 'filters'">Filter Search</v-btn>
-            </v-content>
-            <v-content v-if="current_view == 'filters'" id="filters">
-                <v-btn v-on:click="current_view='main'">Cancel</v-btn>
-                <v-btn v-on:click="getRecipes">Let's Go</v-btn>
-                <!--  -->
-                <v-select :items="meal" label="Meal" v-model="mealSelect">
-                </v-select>
-                <!-- [[mealSelect]] -->
-                <v-select :items="diet" label="Diet" v-model="dietSelect">
-                </v-select>
-                <!-- [[dietSelect]] -->
-                <v-select :items="intolerances" label="Intolerances" multiple v-model="intolerancesSelect">
-                </v-select>
-                <!-- [[intolerancesSelect]] -->
-                <v-select :items="cuisine" label="Cuisine" multiple v-model="cuisineSelect">
-                </v-select>
-            </v-content>
+                        <!-- [[shoppingList]] -->
+                        <v-btn v-on:click="doneShopping">Done Shopping</v-btn>
+                    </v-content>
 
+                </v-content>
+            </div>
         </v-app>
     </div>
 
@@ -139,6 +187,9 @@
             vuetify: new Vuetify(),
             delimiters: ['[[', ']]'],
             data: {
+                filter_visible: true,
+                filter_open_indices: [0],
+                model: 0,
                 current_view: 'main',
                 meal:
                     [{ text: 'Main Course', value: 'maincourse' },
@@ -176,71 +227,76 @@
                     { text: 'Sulfite', value: 'sulfite' },
                     { text: 'Tree Nut', value: 'treenut' },
                     { text: 'Wheat', value: 'wheat' },],
-                cuisine:
-                    [{ text: 'African', value: 'african' },
-                    { text: 'American', value: 'american' },
-                    { text: 'British', value: 'british' },
-                    { text: 'Cajun', value: 'cajun' },
-                    { text: 'Caribbean', value: 'caribbean' },
-                    { text: 'Chinese', value: 'chinese' },
-                    { text: 'Eastern European', value: 'easterneuropean' },
-                    { text: 'European', value: 'european' },
-                    { text: 'French', value: 'french' },
-                    { text: 'German', value: 'german' },
-                    { text: 'Greek', value: 'greek' },
-                    { text: 'Indian', value: 'indian' },
-                    { text: 'Irish', value: 'irish' },
-                    { text: 'Italian', value: 'italian' },
-                    { text: 'Japanese', value: 'japanese' },
-                    { text: 'Jewish', value: 'jewish' },
-                    { text: 'Korean', value: 'korean' },
-                    { text: 'Latin American', value: 'latinamerican' },
-                    { text: 'Mediterranean', value: 'mediterranean' },
-                    { text: 'Mexican', value: 'mexican' },
-                    { text: 'Middle Eastern', value: 'middleeastern' },
-                    { text: 'Nordic', value: 'nordic' },
-                    { text: 'Southern', value: 'southern' },
-                    { text: 'Spanish', value: 'spanish' },
-                    { text: 'Thai', value: 'thai' },
-                    { text: 'Vietnamese', value: 'vietnamese' },
-                    ],
+                // cuisine:
+                //     [{ text: 'African', value: 'african' },
+                //     { text: 'American', value: 'american' },
+                //     { text: 'British', value: 'british' },
+                //     { text: 'Cajun', value: 'cajun' },
+                //     { text: 'Caribbean', value: 'caribbean' },
+                //     { text: 'Chinese', value: 'chinese' },
+                //     { text: 'Eastern European', value: 'easterneuropean' },
+                //     { text: 'European', value: 'european' },
+                //     { text: 'French', value: 'french' },
+                //     { text: 'German', value: 'german' },
+                //     { text: 'Greek', value: 'greek' },
+                //     { text: 'Indian', value: 'indian' },
+                //     { text: 'Irish', value: 'irish' },
+                //     { text: 'Italian', value: 'italian' },
+                //     { text: 'Japanese', value: 'japanese' },
+                //     { text: 'Jewish', value: 'jewish' },
+                //     { text: 'Korean', value: 'korean' },
+                //     { text: 'Latin American', value: 'latinamerican' },
+                //     { text: 'Mediterranean', value: 'mediterranean' },
+                //     { text: 'Mexican', value: 'mexican' },
+                //     { text: 'Middle Eastern', value: 'middleeastern' },
+                //     { text: 'Nordic', value: 'nordic' },
+                //     { text: 'Southern', value: 'southern' },
+                //     { text: 'Spanish', value: 'spanish' },
+                //     { text: 'Thai', value: 'thai' },
+                //     { text: 'Vietnamese', value: 'vietnamese' },
+                //     ],
                 mealSelect: [],
                 dietSelect: [],
                 intolerancesSelect: [],
-                cuisineSelect: [],
+                // cuisineSelect: [],
                 recipeInfo: [],
                 cards: [],
+                shoppingList: [],
 
 
             },
             methods: {
-                getRecipes: function () {
+                getFilterRecipes: function () {
                     recipeInfo = []
                     axios({
                         method: 'get',
                         url: "{% url 'fudr:recipes' %}",
                         params: {
                             fillIngredients: true,
-                            addRecipeInformation: true,
+                            // addRecipeInformation: true,
                             type: this.mealSelect,
                             diet: this.dietSelect,
                             intolerances: this.intolerancesSelect.join(','),
-                            cuisine: this.cuisineSelect.join(',')
+                            // cuisine: this.cuisineSelect.join(','),
+                            instructionsRequired: true,
                         },
                     }).then(response => {
-                        console.log(response.data)
-                        this.recipes = response.data.data.recipes
+                        // console.log(response.data)
                         this.current_view = 'cards'
-                        this.mealSelect = []
-                        this.dietSelect = []
-                        this.intolerancesSelect = []
-                        this.cuisineSelect = []
-                        this.recipeInfo.push(this.recipes)
-                        this.recipes = []
-                        console.log(this.recipeInfo)
+                        // this.mealSelect = []
+                        // this.dietSelect = []
+                        // this.intolerancesSelect = []
+                        // // this.cuisineSelect = []
+                        this.recipeInfo = []
+                        console.log(response.data)
+                        let recipes = response.data.recipes
+                        for (let i=0; i<recipes.length; ++i) {
+                            this.recipeInfo.push(recipes[i])
+                        }
+                        // this.recipeInfo.push(this.recipes)
                     })
                 },
-                getRandomRecipe: function () {
+                getRandomRecipes: function () {
                     recipeInfo = []
                     axios({
                         method: 'get',
@@ -248,14 +304,63 @@
                         params: {},
                     }).then(response => {
                         // console.log(response.data)
-                        this.recipes = response.data.data.recipes
+                        let recipes = response.data.recipes
                         this.current_view = 'cards'
-                        this.recipeInfo.push(this.recipes)
-                        this.recipes = []
-                        console.log(this.recipeInfo)
+                        for (let i=0; i<recipes.length; ++i) {
+                            this.recipeInfo.push(recipes[i])
+                        }
+                        // this.recipes = []
+                        // console.log(this.recipeInfo)
 
                     })
                 },
+                clearRecipes: function () {
+                    this.recipeInfo = []
+                    this.current_view = 'main'
+                    this.dietSelect = []
+                    this.intolerancesSelect = []
+                },
+                nextAdd: function () {
+                    console.log(this.recipeInfo)
+                    this.getMoreRecipes()
+                    this.shoppingList.push(this.recipeInfo[this.model])
+
+                    // console.log(this.shoppingList)
+
+
+                },
+                nextSkip: function () {
+                    this.getMoreRecipes()
+                },
+                doneShopping: function () {
+                    this.current_view = 'main'
+                    this.shoppingList = []
+                },
+                // clearFilters: function () {
+                //     this.dietSelect = []
+                //     this.intolerancesSelect = []
+                //     current_view = "main"
+                // },
+                getRecipes: function () {
+                    if (this.filter) {
+                        this.getFilterRecipes()
+                    }
+                    else {
+                        this.getRandomRecipes()
+                    }
+                },
+                getMoreRecipes: function () {
+                    console.log(this.model)
+                    if (this.model == this.recipeInfo.length - 2) {
+                        console.log("Getting Recipe")
+                        this.getRecipes()
+                    }
+                    this.model++
+                },
+                filterVisibleToggle: function() {
+                    this.filter_open_indices = (this.filter_visible)? [0]: []
+                    console.log(this.filter_open_indices)
+                }
 
             },
             created: {

@@ -13,38 +13,75 @@
     <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Material+Icons" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
     <link rel="stylesheet" href="{% static 'fudr/style.css' %}">
     <style>
-        .bigDiv {
-            max-width: 50vw;
+        .foodImage {
+            height: 65vh;
+            width: 50vw;
+            padding: 5px;
+            border-radius: 25x;
+        }
+
+        .centerBar {
+            height: 100%;
+            width: 50vw;
             margin: 0 auto;
+            background-color: #018F83;
+            box-shadow: 0px 0px 21px 8px rgba(181,72,9,1);
+        }
+
+        .bigDiv {
+            width: 100vw;
+            height: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background-color: #E85D0C;
+
         }
 
         .headerLogo {
             margin: 10px;
-            padding: 10px;
+            padding: 20px;
+            display: flex;
         }
 
         .header {
-            max-height: 20vh;
+            color: #E85D0C;
+            display: flex;
 
         }
 
         .flip-card {
-            background-color: transparent;
-            width: 500px;
-            height: 500px;
+            background-color: #E85D0C;
+            width: 50vw;
+            height: 70vh;
             /* border: 1px solid #f1f1f1; */
             /* perspective: 1000px; */
             margin: 0 auto;
+            align-items: center;
 
             /* Remove this if you don't want the 3D effect */
         }
-
         .nextLastButtons {
             margin: 0 auto !important;
             text-align: center;
+            display: flex;
+            justify-content: space-evenly;
+            padding: 10px;
+            background-color: #00897B;
+        }
+        .mainButtons{
+            display: flex;
+            flex-direction: column;
+            margin: 20vh;
+            justify-content: space-evenly;
+        }
+        .filters{
+            padding: 10px;
         }
 
         /* This container is needed to position the front and back side */
@@ -75,15 +112,30 @@
 
         /* Style the front side (fallback if image is missing) */
         .flip-card-front {
-            background-color: #bbb;
+            background-color: #00897B;
             color: black;
         }
 
         /* Style the back side */
         .flip-card-back {
-            background-color: black;
+            background-color: #00897B;
             color: white;
             transform: rotateY(180deg);
+            padding: 45px;
+        }
+        .search{
+            margin: 30px;
+        }
+        .shopList{
+            margin: 30px;
+        }
+        .shoppingCard{
+            margin: 10px;
+            padding: 10px;
+            opacity: 0.9;
+        }
+        .clearShopList{
+            margin: 10px;
         }
     </style>
 </head>
@@ -92,91 +144,100 @@
     <div id="app">
         <v-app>
             <div class="bigDiv">
-                <v-app-bar class="header" color="deep-purple accent-4" dense>
+                <div class="centerBar">
+                    <v-app-bar>
+                        <v-toolbar-title class="header" height="200">
+                            <v-img class="headerLogo" src="{% static 'fudr/logo-B-transparent.png' %}" height="175px"
+                                contain>
+                            </v-img>
+                        </v-toolbar-title>
+                        <v-btn v-on:click="clearRecipes" icon>
+                            <v-icon large>home</v-icon>
+                        </v-btn>
 
-                    <v-toolbar-title>
-                        <v-img class="headerLogo" src="{% static 'fudr/logo-B-transparent.png' %}" height="150" contain>
-                        </v-img>
-                    </v-toolbar-title>
+                        <v-spacer></v-spacer>
+                    </v-app-bar>
+                    <v-content v-if="current_view == 'cards'">
 
-                    <v-spacer></v-spacer>
-                </v-app-bar>
-                <v-content v-if="current_view == 'cards'">
-                    <v-btn v-on:click="clearRecipes">Home</v-btn>
-                    <v-card max-width="45vw">
-                        <v-carousel v-model="model" hide-delimiters :continuous="false" height="80vh"
-                            :show-arrows="false">
-                            <v-carousel-item v-for="recipe in recipeInfo" height="80vh">
-                                <v-card class="justify-center" v-if="recipe">
-                                    <div class="flip-card">
-                                        <div class="flip-card-inner">
-                                            <div class="flip-card-front">
-                                                <img v-bind:src="recipe.image" alt="Avatar" style="width:500px;">
-                                                <p class="text-center">[[recipe.title]]</p>
-                                                <p>[[this.model]]</p>
+                        <v-card max-width="50vw">
+                            <v-carousel v-model="model" hide-delimiters :continuous="false" height="100vh"
+                                :show-arrows="false">
+                                <v-carousel-item v-for="recipe in recipeInfo" class="teal darken-1">
+                                    <v-card class="justify-center" v-if="recipe">
+                                        <div class="flip-card">
+                                            <div class="flip-card-inner">
+                                                <div class="flip-card-front">
+                                                    <img class="foodImage" v-bind:src="recipe.image" alt="Avatar">
+                                                    <h3 class="text-center">[[recipe.title]]</h3>
+                                                    <p>[[this.model]]</p>
+                                                </div>
+                                                <div class="flip-card-back">
+                                                    <p class="text-left" v-html="recipe.summary"></p>
+                                                </div>
                                             </div>
-                                            <div class="flip-card-back">
-                                                <p class="text-left" v-html="recipe.summary"></p>
+                                            <div class="nextLastButtons">
+                                                <v-btn v-on:click="nextAdd">Sounds Good</v-btn>
+                                                <v-btn v-on:click="nextSkip">Nah</v-btn>
+
                                             </div>
                                         </div>
-                                        <div class="nextLastButtons">
-                                            <v-btn v-on:click="nextAdd">Sounds Good</v-btn>
-                                            <v-btn v-on:click="nextSkip">Nah</v-btn>
-
-                                        </div>
-                                    </div>
-                                </v-card>
-                    </v-card>
-                </v-content>
-                <v-content v-if="current_view == 'main'">
-                    <h4>Filter</h4>
-                    <v-switch v-model="filter_visible" @change="filterVisibleToggle"></v-switch>
-                    <v-expansion-panels v-model="filter_open_indices" multiple flat>
-                        <v-expansion-panel >
-                            <v-expansion-panel-content>
-                                <!--  -->
-                                <v-select :items="meal" label="Meal" v-model="mealSelect">
-                                </v-select>
-                                <!-- [[mealSelect]] -->
-                                <v-select :items="diet" label="Diet" v-model="dietSelect">
-                                </v-select>
-                                <!-- [[dietSelect]] -->
-                                <v-select :items="intolerances" label="Intolerances" multiple v-model="intolerancesSelect">
-                                </v-select>
-                                <!-- [[intolerancesSelect]] -->
-                            </v-expansion-panel-content>
-                        </v-expansion-panel>
-                    </v-expansion-panels>
-                    <v-btn @click="getRecipes">Start Searching</v-btn>
-                <v-btn @click="current_view='list'">Shopping List</v-btn>
-                </v-content>
-
-                
-                </v-content>
-                <v-content v-if="current_view == 'list'" id="list">
-                    <v-btn v-on:click="current_view='main'">Home</v-btn>
-                    <v-content>
-                        <v-card v-for="recipe in shoppingList">
-                            <h2>[[recipe.title]]</h2>
-                            <v-list dense>
-                                <v-subheader>Recipe</v-subheader>
-                                <v-list-item v-for="step in recipe.instructions">
-                                    [[step]]
-                                </v-list-item>
-                            </v-list>
-                            <v-subheader>Ingredients</v-subheader>
-                            <v-list dense>
-                                <v-list-item v-for="ingredient in recipe.ingredients">
-                                    [[ingredient]]
-                                </v-list-item>
-                            </v-list>
-
+                                    </v-card>
+                                </v-carousel-item>
+                            </v-carousel>
                         </v-card>
-                        <!-- [[shoppingList]] -->
-                        <v-btn v-on:click="doneShopping">Done Shopping</v-btn>
+                    </v-content>
+                    <v-content v-if="current_view == 'main'" class="MainPage">
+                        <h4>Filter</h4>
+                        <v-switch v-model="filter_visible" @change="filterVisibleToggle"></v-switch>
+                        <v-expansion-panels v-model="filter_open_indices" multiple flat class="filters">
+                            <v-expansion-panel>
+                                <v-expansion-panel-content>
+                                    <!--  -->
+                                    <v-select :items="meal" label="Meal" v-model="mealSelect">
+                                    </v-select>
+                                    <!-- [[mealSelect]] -->
+                                    <v-select :items="diet" label="Diet" v-model="dietSelect">
+                                    </v-select>
+                                    <!-- [[dietSelect]] -->
+                                    <v-select :items="intolerances" label="Intolerances" multiple
+                                        v-model="intolerancesSelect">
+                                    </v-select>
+                                    <!-- [[intolerancesSelect]] -->
+                                </v-expansion-panel-content>
+                            </v-expansion-panel>
+                        </v-expansion-panels>
+                        <div class="mainButtons">
+                            <v-btn class="search" @click="getRecipes" height="60">Start Searching</v-btn>
+                            <v-btn class="shopList" @click="current_view='list'" height="60">Shopping List</v-btn>
+                        </div>
                     </v-content>
 
-                </v-content>
+
+                    </v-content>
+                    <v-content v-if="current_view == 'list'" id="list">
+                        <v-content>
+                            <v-card v-for="recipe in shoppingList" class="shoppingCard">
+                                <h2>[[recipe.title]]</h2>
+                                <v-list dense>
+                                    <v-subheader>Recipe</v-subheader>
+                                    <v-list-item v-for="step in recipe.instructions">
+                                        [[step]]
+                                    </v-list-item>
+                                </v-list>
+                                <v-subheader>Ingredients</v-subheader>
+                                <v-list dense>
+                                    <v-list-item v-for="ingredient in recipe.ingredients">
+                                        [[ingredient]]
+                                    </v-list-item>
+                                </v-list>
+
+                            </v-card>
+                            <!-- [[shoppingList]] -->
+                            <v-btn class="clearShopList" v-on:click="doneShopping">Done Shopping</v-btn>
+                        </v-content>
+
+                    </v-content>
+                </div>
             </div>
         </v-app>
     </div>
@@ -290,7 +351,7 @@
                         this.recipeInfo = []
                         console.log(response.data)
                         let recipes = response.data.recipes
-                        for (let i=0; i<recipes.length; ++i) {
+                        for (let i = 0; i < recipes.length; ++i) {
                             this.recipeInfo.push(recipes[i])
                         }
                         // this.recipeInfo.push(this.recipes)
@@ -306,7 +367,7 @@
                         // console.log(response.data)
                         let recipes = response.data.recipes
                         this.current_view = 'cards'
-                        for (let i=0; i<recipes.length; ++i) {
+                        for (let i = 0; i < recipes.length; ++i) {
                             this.recipeInfo.push(recipes[i])
                         }
                         // this.recipes = []
@@ -322,8 +383,9 @@
                 },
                 nextAdd: function () {
                     console.log(this.recipeInfo)
-                    this.getMoreRecipes()
                     this.shoppingList.push(this.recipeInfo[this.model])
+                    this.getMoreRecipes()
+
 
                     // console.log(this.shoppingList)
 
@@ -353,12 +415,13 @@
                     console.log(this.model)
                     if (this.model == this.recipeInfo.length - 2) {
                         console.log("Getting Recipe")
+                        console.log(this.model)
                         this.getRecipes()
                     }
                     this.model++
                 },
-                filterVisibleToggle: function() {
-                    this.filter_open_indices = (this.filter_visible)? [0]: []
+                filterVisibleToggle: function () {
+                    this.filter_open_indices = (this.filter_visible) ? [0] : []
                     console.log(this.filter_open_indices)
                 }
 

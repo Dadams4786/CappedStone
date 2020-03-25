@@ -10,8 +10,6 @@ def index(request):
     return render(request, 'fudr/index.html')
 
 def recipes(request):
-    # text = request.GET['text']
-    # print(text)
     params = dict(request.GET)
     params['apiKey'] = spoon_key
     params['number'] = 3
@@ -19,7 +17,7 @@ def recipes(request):
     params['fillIngredients'] = True
     params['sort'] = 'random'
     response = requests.get('https://api.spoonacular.com/recipes/complexSearch', params=params)
-    print(response)
+    # print(response)
     spoon_recipes = json.loads(response.text)
     # print(spoon_recipes)
     spoon_recipes = spoon_recipes["results"]
@@ -54,7 +52,6 @@ def randomRecipe(request):
     response = requests.get('https://api.spoonacular.com/recipes/random', params=params)
     random_spoon_recipes = json.loads(response.text)
     random_spoon_recipes = random_spoon_recipes["recipes"]
-    # print(random_spoon_recipes)
     recipes=[]
     for random_spoon_recipe in random_spoon_recipes:
         try: 

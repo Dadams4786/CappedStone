@@ -157,8 +157,8 @@
 
                         <v-spacer></v-spacer>
                     </v-app-bar>
+                    <!-- Cards view -->
                     <v-content v-if="current_view == 'cards'">
-
                         <v-card max-width="50vw">
                             <v-carousel v-model="model" hide-delimiters :continuous="false" height="100vh"
                                 :show-arrows="false">
@@ -178,7 +178,6 @@
                                             <div class="nextLastButtons">
                                                 <v-btn v-on:click="nextAdd">Sounds Good</v-btn>
                                                 <v-btn v-on:click="nextSkip">Nah</v-btn>
-
                                             </div>
                                         </div>
                                     </v-card>
@@ -186,23 +185,21 @@
                             </v-carousel>
                         </v-card>
                     </v-content>
+                    <!-- Main Page View -->
                     <v-content v-if="current_view == 'main'" class="MainPage">
                         <h4>Filter</h4>
                         <v-switch v-model="filter_visible" @change="filterVisibleToggle"></v-switch>
                         <v-expansion-panels v-model="filter_open_indices" multiple flat class="filters">
                             <v-expansion-panel>
                                 <v-expansion-panel-content>
-                                    <!--  -->
+                                    <!-- Diet Selectors -->
                                     <v-select :items="meal" label="Meal" v-model="mealSelect">
                                     </v-select>
-                                    <!-- [[mealSelect]] -->
                                     <v-select :items="diet" label="Diet" v-model="dietSelect">
                                     </v-select>
-                                    <!-- [[dietSelect]] -->
                                     <v-select :items="intolerances" label="Intolerances" multiple
                                         v-model="intolerancesSelect">
                                     </v-select>
-                                    <!-- [[intolerancesSelect]] -->
                                 </v-expansion-panel-content>
                             </v-expansion-panel>
                         </v-expansion-panels>
@@ -211,11 +208,8 @@
                             <v-btn class="shopList" @click="current_view='list'" height="60">Shopping List</v-btn>
                         </div>
                     </v-content>
-
-
-                    </v-content>
+                    <!-- Shopping List View -->
                     <v-content v-if="current_view == 'list'" id="list">
-                        <v-content>
                             <v-card v-for="recipe in shoppingList" class="shoppingCard">
                                 <h2>[[recipe.title]]</h2>
                                 <v-list dense>
@@ -230,12 +224,8 @@
                                         [[ingredient]]
                                     </v-list-item>
                                 </v-list>
-
                             </v-card>
-                            <!-- [[shoppingList]] -->
                             <v-btn class="clearShopList" v-on:click="doneShopping">Done Shopping</v-btn>
-                        </v-content>
-
                     </v-content>
                 </div>
             </div>
@@ -288,38 +278,10 @@
                     { text: 'Sulfite', value: 'sulfite' },
                     { text: 'Tree Nut', value: 'treenut' },
                     { text: 'Wheat', value: 'wheat' },],
-                // cuisine:
-                //     [{ text: 'African', value: 'african' },
-                //     { text: 'American', value: 'american' },
-                //     { text: 'British', value: 'british' },
-                //     { text: 'Cajun', value: 'cajun' },
-                //     { text: 'Caribbean', value: 'caribbean' },
-                //     { text: 'Chinese', value: 'chinese' },
-                //     { text: 'Eastern European', value: 'easterneuropean' },
-                //     { text: 'European', value: 'european' },
-                //     { text: 'French', value: 'french' },
-                //     { text: 'German', value: 'german' },
-                //     { text: 'Greek', value: 'greek' },
-                //     { text: 'Indian', value: 'indian' },
-                //     { text: 'Irish', value: 'irish' },
-                //     { text: 'Italian', value: 'italian' },
-                //     { text: 'Japanese', value: 'japanese' },
-                //     { text: 'Jewish', value: 'jewish' },
-                //     { text: 'Korean', value: 'korean' },
-                //     { text: 'Latin American', value: 'latinamerican' },
-                //     { text: 'Mediterranean', value: 'mediterranean' },
-                //     { text: 'Mexican', value: 'mexican' },
-                //     { text: 'Middle Eastern', value: 'middleeastern' },
-                //     { text: 'Nordic', value: 'nordic' },
-                //     { text: 'Southern', value: 'southern' },
-                //     { text: 'Spanish', value: 'spanish' },
-                //     { text: 'Thai', value: 'thai' },
-                //     { text: 'Vietnamese', value: 'vietnamese' },
-                //     ],
+
                 mealSelect: [],
                 dietSelect: [],
                 intolerancesSelect: [],
-                // cuisineSelect: [],
                 recipeInfo: [],
                 cards: [],
                 shoppingList: [],
@@ -334,27 +296,19 @@
                         url: "{% url 'fudr:recipes' %}",
                         params: {
                             fillIngredients: true,
-                            // addRecipeInformation: true,
                             type: this.mealSelect,
                             diet: this.dietSelect,
                             intolerances: this.intolerancesSelect.join(','),
-                            // cuisine: this.cuisineSelect.join(','),
                             instructionsRequired: true,
                         },
                     }).then(response => {
-                        // console.log(response.data)
                         this.current_view = 'cards'
-                        // this.mealSelect = []
-                        // this.dietSelect = []
-                        // this.intolerancesSelect = []
-                        // // this.cuisineSelect = []
                         this.recipeInfo = []
-                        console.log(response.data)
+                        console.log(this.intolerancesSelect)
                         let recipes = response.data.recipes
                         for (let i = 0; i < recipes.length; ++i) {
                             this.recipeInfo.push(recipes[i])
                         }
-                        // this.recipeInfo.push(this.recipes)
                     })
                 },
                 getRandomRecipes: function () {
@@ -364,32 +318,24 @@
                         url: "{% url 'fudr:randomRecipe' %}",
                         params: {},
                     }).then(response => {
-                        // console.log(response.data)
                         let recipes = response.data.recipes
                         this.current_view = 'cards'
                         for (let i = 0; i < recipes.length; ++i) {
                             this.recipeInfo.push(recipes[i])
                         }
-                        // this.recipes = []
-                        // console.log(this.recipeInfo)
-
                     })
                 },
                 clearRecipes: function () {
                     this.recipeInfo = []
-                    this.current_view = 'main'
                     this.dietSelect = []
                     this.intolerancesSelect = []
+                    this.mealSelect = []
+                    this.current_view = 'main'
                 },
                 nextAdd: function () {
                     console.log(this.recipeInfo)
                     this.shoppingList.push(this.recipeInfo[this.model])
                     this.getMoreRecipes()
-
-
-                    // console.log(this.shoppingList)
-
-
                 },
                 nextSkip: function () {
                     this.getMoreRecipes()
@@ -398,17 +344,14 @@
                     this.current_view = 'main'
                     this.shoppingList = []
                 },
-                // clearFilters: function () {
-                //     this.dietSelect = []
-                //     this.intolerancesSelect = []
-                //     current_view = "main"
-                // },
                 getRecipes: function () {
-                    if (this.filter) {
+                    if (this.filter_visible) {
                         this.getFilterRecipes()
+                        alert("Filter Selected")
                     }
                     else {
                         this.getRandomRecipes()
+                        alert("Random Selected")
                     }
                 },
                 getMoreRecipes: function () {

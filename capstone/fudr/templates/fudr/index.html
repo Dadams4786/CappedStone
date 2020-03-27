@@ -14,6 +14,7 @@
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Material+Icons" rel="stylesheet">
+    <link href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
     <link rel="stylesheet" href="{% static 'fudr/style.css' %}">
     <style>
@@ -29,7 +30,7 @@
             width: 50vw;
             margin: 0 auto;
             background-color: #018F83;
-            box-shadow: 0px 0px 21px 8px rgba(181,72,9,1);
+            box-shadow: 0px 0px 21px 8px rgba(181, 72, 9, 1);
         }
 
         .bigDiv {
@@ -66,6 +67,7 @@
 
             /* Remove this if you don't want the 3D effect */
         }
+
         .nextLastButtons {
             margin: 0 auto !important;
             text-align: center;
@@ -74,13 +76,15 @@
             padding: 10px;
             background-color: #00897B;
         }
-        .mainButtons{
+
+        .mainButtons {
             display: flex;
             flex-direction: column;
             margin: 20vh;
             justify-content: space-evenly;
         }
-        .filters{
+
+        .filters {
             padding: 10px;
         }
 
@@ -123,19 +127,31 @@
             transform: rotateY(180deg);
             padding: 45px;
         }
-        .search{
+
+        .search {
             margin: 30px;
         }
-        .shopList{
+
+        .shopList {
             margin: 30px;
         }
-        .shoppingCard{
+
+        .shoppingCard {
             margin: 10px;
             padding: 10px;
             opacity: 0.9;
         }
-        .clearShopList{
+
+        .clearShopList {
             margin: 10px;
+        }
+        .filterSwitch{
+            margin: 10px;
+        }
+        .recipeCard{
+            margin: 10px;
+            padding: 10px;
+            opacity: 0.9;
         }
     </style>
 </head>
@@ -152,8 +168,15 @@
                             </v-img>
                         </v-toolbar-title>
                         <v-btn v-on:click="clearRecipes" icon>
-                            <v-icon large>home</v-icon>
+                            <v-icon large>fa-home</v-icon>
                         </v-btn>
+                        <v-btn icon left>
+                            <v-icon large>fa-heart</v-icon>
+                        </v-btn>
+                        <v-btn icon href="{% url 'fudr:logout' %}">
+                            <v-icon large>fa-sign-out-alt</v-icon>
+                        </v-btn>
+
 
                         <v-spacer></v-spacer>
                     </v-app-bar>
@@ -169,15 +192,16 @@
                                                 <div class="flip-card-front">
                                                     <img class="foodImage" v-bind:src="recipe.image" alt="Avatar">
                                                     <h3 class="text-center">[[recipe.title]]</h3>
-                                                    <p>[[this.model]]</p>
                                                 </div>
                                                 <div class="flip-card-back">
-                                                    <p class="text-left" v-html="recipe.summary"></p>
+                                                    <v-card class="recipeCard" light>
+                                                        <p class="text-left" v-html="recipe.summary"></p>
+                                                    </v-card>
                                                 </div>
                                             </div>
                                             <div class="nextLastButtons">
-                                                <v-btn v-on:click="nextAdd">Sounds Good</v-btn>
-                                                <v-btn v-on:click="nextSkip">Nah</v-btn>
+                                                <v-btn v-on:click="nextAdd" light>Sounds Good</v-btn>
+                                                <v-btn v-on:click="nextSkip" light>Nah</v-btn>
                                             </div>
                                         </div>
                                     </v-card>
@@ -187,8 +211,10 @@
                     </v-content>
                     <!-- Main Page View -->
                     <v-content v-if="current_view == 'main'" class="MainPage">
-                        <h4>Filter</h4>
-                        <v-switch v-model="filter_visible" @change="filterVisibleToggle"></v-switch>
+                        <div class="filterSwitch">
+                            <h4>Filter</h4>
+                            <v-switch v-model="filter_visible" @change="filterVisibleToggle"></v-switch>
+                        </div>
                         <v-expansion-panels v-model="filter_open_indices" multiple flat class="filters">
                             <v-expansion-panel>
                                 <v-expansion-panel-content>
@@ -210,22 +236,23 @@
                     </v-content>
                     <!-- Shopping List View -->
                     <v-content v-if="current_view == 'list'" id="list">
-                            <v-card v-for="recipe in shoppingList" class="shoppingCard">
-                                <h2>[[recipe.title]]</h2>
-                                <v-list dense>
-                                    <v-subheader>Recipe</v-subheader>
-                                    <v-list-item v-for="step in recipe.instructions">
-                                        [[step]]
-                                    </v-list-item>
-                                </v-list>
-                                <v-subheader>Ingredients</v-subheader>
-                                <v-list dense>
-                                    <v-list-item v-for="ingredient in recipe.ingredients">
-                                        [[ingredient]]
-                                    </v-list-item>
-                                </v-list>
-                            </v-card>
-                            <v-btn class="clearShopList" v-on:click="doneShopping">Done Shopping</v-btn>
+                        <v-card v-for="recipe in shoppingList" class="shoppingCard">
+                            <h2>[[recipe.title]]</h2>
+                            <v-list dense>
+                                <v-subheader>Recipe</v-subheader>
+                                <v-list-item v-for="step in recipe.instructions">
+                                    [[step]]
+                                </v-list-item>
+                            </v-list>
+                            <v-subheader>Ingredients</v-subheader>
+                            <v-list dense>
+                                <v-list-item v-for="ingredient in recipe.ingredients">
+                                    [[ingredient]]
+                                </v-list-item>
+                            </v-list>
+                            <v-btn>Add to Favorites</v-btn>
+                        </v-card>
+                        <v-btn class="clearShopList" v-on:click="doneShopping">Done Shopping</v-btn>
                     </v-content>
                 </div>
             </div>
@@ -347,11 +374,11 @@
                 getRecipes: function () {
                     if (this.filter_visible) {
                         this.getFilterRecipes()
-                        alert("Filter Selected")
+                        // alert("Filter Selected")
                     }
                     else {
                         this.getRandomRecipes()
-                        alert("Random Selected")
+                        // alert("Random Selected")
                     }
                 },
                 getMoreRecipes: function () {

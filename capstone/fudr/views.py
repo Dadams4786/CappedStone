@@ -1,11 +1,14 @@
-from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, reverse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from .models import User
+from django.contrib.auth.decorators import login_required
+import django.contrib.auth
 import requests
 import json
 from .secrets import spoon_key
 
 # Create your views here.
-
+@login_required
 def index(request):
     return render(request, 'fudr/index.html')
 
@@ -75,3 +78,41 @@ def randomRecipe(request):
 
     return JsonResponse({"recipes" : recipes})
 
+def register(request):
+  message = request.GET.get('message', '')
+  return render(request, 'fudr/register.html', {'message': message})
+
+
+def register_user(request):
+
+  username = request.POST['username']
+
+  if User.objects.filter(username=username).exists():
+    return HttpResponseRedirect(reverse('fudr:register')+'?message=already_taken')
+
+  user = User.objects.create_user(request.POST['username'],
+                                  request.POST['email'],
+                                  request.POST['password'])
+  user.image = request.FILES['image']
+  user.save()
+
+  django.contrib.auth.login(request, user)
+
+  return HttpResponseRedirect(reverse('fudr:index'))
+
+def login(request):
+  message = ''
+  if request.method == 'POST': 
+    username = request.POST['username']
+    password = request.POST['password']
+    user = django.contrib.auth.authenticate(request, username=username, password=password)
+    if user is not None:
+      django.contrib.auth.login(request, user)
+      return HttpResponseRedirect(reverse('fudr:index'))
+    message = 'fail'
+  return render(request, 'fudr/login.html', {'message': message})
+
+@login_required
+def logout(request):
+  django.contrib.auth.logout(request)
+  return HttpResponseRedirect(reverse('fudr:login'))

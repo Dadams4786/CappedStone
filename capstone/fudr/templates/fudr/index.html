@@ -16,144 +16,7 @@
     <link href="https://fonts.googleapis.com/css?family=Material+Icons" rel="stylesheet">
     <link href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-    <link rel="stylesheet" href="{% static 'fudr/style.css' %}">
-    <style>
-        .foodImage {
-            height: 65vh;
-            width: 50vw;
-            padding: 5px;
-            border-radius: 25x;
-        }
-
-        .centerBar {
-            height: 100%;
-            width: 50vw;
-            margin: 0 auto;
-            background-color: #018F83;
-            box-shadow: 0px 0px 21px 8px rgba(181, 72, 9, 1);
-        }
-
-        .bigDiv {
-            width: 100vw;
-            height: 100%;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            background-color: #E85D0C;
-
-        }
-
-        .headerLogo {
-            margin: 10px;
-            padding: 20px;
-            display: flex;
-        }
-
-        .header {
-            color: #E85D0C;
-            display: flex;
-
-        }
-
-        .flip-card {
-            background-color: #E85D0C;
-            width: 50vw;
-            height: 70vh;
-            /* border: 1px solid #f1f1f1; */
-            /* perspective: 1000px; */
-            margin: 0 auto;
-            align-items: center;
-
-            /* Remove this if you don't want the 3D effect */
-        }
-
-        .nextLastButtons {
-            margin: 0 auto !important;
-            text-align: center;
-            display: flex;
-            justify-content: space-evenly;
-            padding: 10px;
-            background-color: #00897B;
-        }
-
-        .mainButtons {
-            display: flex;
-            flex-direction: column;
-            margin: 20vh;
-            justify-content: space-evenly;
-        }
-
-        .filters {
-            padding: 10px;
-        }
-
-        /* This container is needed to position the front and back side */
-        .flip-card-inner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            text-align: center;
-            transition: transform 0.8s;
-            transform-style: preserve-3d;
-        }
-
-        /* Do an horizontal flip when you move the mouse over the flip box container */
-        .flip-card:active .flip-card-inner {
-            transform: rotateY(180deg);
-        }
-
-        /* Position the front and back side */
-        .flip-card-front,
-        .flip-card-back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            -webkit-backface-visibility: hidden;
-            /* Safari */
-            backface-visibility: hidden;
-        }
-
-        /* Style the front side (fallback if image is missing) */
-        .flip-card-front {
-            background-color: #00897B;
-            color: black;
-        }
-
-        /* Style the back side */
-        .flip-card-back {
-            background-color: #00897B;
-            color: white;
-            transform: rotateY(180deg);
-            padding: 45px;
-        }
-
-        .search {
-            margin: 30px;
-        }
-
-        .shopList {
-            margin: 30px;
-        }
-
-        .shoppingCard {
-            margin: 10px;
-            padding: 10px;
-            opacity: 0.9;
-        }
-
-        .clearShopList {
-            margin: 10px;
-        }
-        .filterSwitch{
-            margin: 10px;
-        }
-        .recipeCard{
-            margin: 10px;
-            padding: 10px;
-            opacity: 0.9;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="{% static 'fudr/style.css' %}">
 </head>
 
 <body>
@@ -163,21 +26,19 @@
                 <div class="centerBar">
                     <v-app-bar>
                         <v-toolbar-title class="header" height="200">
-                            <v-img class="headerLogo" src="{% static 'fudr/logo-B-transparent.png' %}" height="175px"
-                                contain>
+                            <v-img src="{% static 'fudr/logo-B-transparent.png' %}" height="175px" contain center>
                             </v-img>
                         </v-toolbar-title>
+                        <v-btn left absolute text disabled></v-btn>
                         <v-btn v-on:click="clearRecipes" icon>
                             <v-icon large>fa-home</v-icon>
                         </v-btn>
-                        <v-btn icon left>
+                        <v-btn v-on:click="getFavRecipes" icon>
                             <v-icon large>fa-heart</v-icon>
                         </v-btn>
                         <v-btn icon href="{% url 'fudr:logout' %}">
                             <v-icon large>fa-sign-out-alt</v-icon>
                         </v-btn>
-
-
                         <v-spacer></v-spacer>
                     </v-app-bar>
                     <!-- Cards view -->
@@ -190,7 +51,9 @@
                                         <div class="flip-card">
                                             <div class="flip-card-inner">
                                                 <div class="flip-card-front">
-                                                    <img class="foodImage" v-bind:src="recipe.image" alt="Avatar">
+                                                    <!-- <v-img class="foodImage" v-bind:src="recipe.image" alt="Avatar"> -->
+                                                    <v-img v-bind:src="recipe.image" class="foodImage">
+                                                    </v-img>
                                                     <h3 class="text-center">[[recipe.title]]</h3>
                                                 </div>
                                                 <div class="flip-card-back">
@@ -201,6 +64,10 @@
                                             </div>
                                             <div class="nextLastButtons">
                                                 <v-btn v-on:click="nextAdd" light>Sounds Good</v-btn>
+                                                <v-btn icon>
+                                                    <v-icon large :color="recipe.color" v-on:click="addFav(recipe)">
+                                                        fa-heart</v-icon>
+                                                </v-btn>
                                                 <v-btn v-on:click="nextSkip" light>Nah</v-btn>
                                             </div>
                                         </div>
@@ -244,15 +111,36 @@
                                     [[step]]
                                 </v-list-item>
                             </v-list>
-                            <v-subheader>Ingredients</v-subheader>
                             <v-list dense>
+                                <v-subheader>Ingredients</v-subheader>
                                 <v-list-item v-for="ingredient in recipe.ingredients">
                                     [[ingredient]]
                                 </v-list-item>
                             </v-list>
-                            <v-btn>Add to Favorites</v-btn>
                         </v-card>
+                        
                         <v-btn class="clearShopList" v-on:click="doneShopping">Done Shopping</v-btn>
+                    </v-content>
+                    <!-- Favorite List View -->
+                    <v-content v-if="current_view == 'favorites'" id="favorites">
+                        <v-card v-for="recipe in favorites" class="shoppingCard">
+                            <h2>[[recipe.title]]</h2>
+                            <v-list dense>
+                                <v-subheader>Recipe</v-subheader>
+                                <v-list-item v-for="step in recipe.instructions">
+                                    [[step]]
+                                </v-list-item>
+                            </v-list>
+                            <v-list dense>
+                                <v-subheader>Ingredients</v-subheader>
+                                <v-list-item v-for="ingredient in recipe.ingredients">
+                                    [[ingredient]]
+                                </v-list-item>
+                            </v-list>
+                            <v-btn icon v-on:click="deleteFav(recipe.id)">
+                                <v-icon>fa-trash</v-icon>
+                            </v-btn>
+                        </v-card>
                     </v-content>
                 </div>
             </div>
@@ -312,12 +200,13 @@
                 recipeInfo: [],
                 cards: [],
                 shoppingList: [],
-
+                favorites: [],
+                delete_id: 0
 
             },
             methods: {
                 getFilterRecipes: function () {
-                    recipeInfo = []
+                    let recipeInfo = []
                     axios({
                         method: 'get',
                         url: "{% url 'fudr:recipes' %}",
@@ -330,26 +219,71 @@
                         },
                     }).then(response => {
                         this.current_view = 'cards'
-                        this.recipeInfo = []
-                        console.log(this.intolerancesSelect)
+                        // this.recipeInfo = []
+                        // console.log(this.intolerancesSelect)
                         let recipes = response.data.recipes
                         for (let i = 0; i < recipes.length; ++i) {
-                            this.recipeInfo.push(recipes[i])
+                            recipeInfo.push(recipes[i])
                         }
+                        this.recipeInfo = recipeInfo
                     })
                 },
                 getRandomRecipes: function () {
-                    recipeInfo = []
+                    let recipeInfo = []
                     axios({
                         method: 'get',
                         url: "{% url 'fudr:randomRecipe' %}",
                         params: {},
                     }).then(response => {
-                        let recipes = response.data.recipes
                         this.current_view = 'cards'
+                        let recipes = response.data.recipes
                         for (let i = 0; i < recipes.length; ++i) {
-                            this.recipeInfo.push(recipes[i])
+                            recipeInfo.push(recipes[i])
                         }
+                        this.recipeInfo = recipeInfo
+                    })
+                },
+                getFavRecipes: function () {
+                    let favorites = []
+                    axios({
+                        method: 'get',
+                        url: "{% url 'fudr:getfav' %}",
+                    }).then(response => {
+                        this.current_view = 'favorites'
+                        let favs = response.data.fav_recipes
+                        for (let i = 0; i < favs.length; ++i) {
+                            favorites.push(favs[i])
+                        }
+                        this.favorites = favorites
+                    })
+                },
+                addFav: function (recipe) {
+                    recipe.color = "orange darken-3"
+                    axios({
+                        method: 'post',
+                        url: "{% url 'fudr:addfav' %}",
+                        headers: {
+                            'X-CSRFToken': '{{csrf_token}}'
+                        },
+                        data: {
+                            newFav: this.recipeInfo[this.model]
+                        }
+                    })
+                },
+                deleteFav: function (delete_id) {
+                    axios({
+                        method: 'post',
+                        url: "{% url 'fudr:deletefav' %}",
+                        headers: {
+                            'X-CSRFToken': '{{csrf_token}}'
+                        },
+                        data: {
+                            fav_id: delete_id
+                        }
+                    }).then(response => {
+                        console.log(`deleting ${delete_id}`)
+                        this.delete_id = 0
+                        this.getFavRecipes()
                     })
                 },
                 clearRecipes: function () {
@@ -393,12 +327,11 @@
                 filterVisibleToggle: function () {
                     this.filter_open_indices = (this.filter_visible) ? [0] : []
                     console.log(this.filter_open_indices)
-                }
+                },
+
 
             },
-            created: {
 
-            }
         })
     </script>
 </body>

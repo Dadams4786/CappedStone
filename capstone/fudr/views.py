@@ -1,13 +1,12 @@
 from django.shortcuts import render, reverse
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from .models import User
+from .models import User, Favorite
 from django.contrib.auth.decorators import login_required
 import django.contrib.auth
 import requests
 import json
 from .secrets import spoon_key
 
-# Create your views here.
 @login_required
 def index(request):
     return render(request, 'fudr/index.html')
@@ -39,9 +38,10 @@ def recipes(request):
             recipes.append({
                 "title" : spoon_recipe["title"],
                 "image" : spoon_recipe["image"],
-                "summary" : spoon_recipe["summary"],
+                "summary" : spoon_recipe["summary"].replace(spoon_recipe["title"], ''),
                 "instructions" : instructions,
-                "ingredients" : ingredients    
+                "ingredients" : ingredients,
+                "color" : 'white',
             })
         except IndexError:
             continue
@@ -69,9 +69,10 @@ def randomRecipe(request):
             recipes.append({
                 "title" : random_spoon_recipe["title"],
                 "image" : random_spoon_recipe["image"],
-                "summary" : random_spoon_recipe["summary"],
+                "summary" : random_spoon_recipe["summary"].replace(random_spoon_recipe["title"], ''),
                 "instructions" : instructions,
-                "ingredients" : ingredients    
+                "ingredients" : ingredients,
+                "color" : 'white', 
             })
         except IndexError:
             continue
@@ -93,7 +94,7 @@ def register_user(request):
   user = User.objects.create_user(request.POST['username'],
                                   request.POST['email'],
                                   request.POST['password'])
-  user.image = request.FILES['image']
+  # user.image = request.FILES['image']
   user.save()
 
   django.contrib.auth.login(request, user)
@@ -116,3 +117,42 @@ def login(request):
 def logout(request):
   django.contrib.auth.logout(request)
   return HttpResponseRedirect(reverse('fudr:login'))
+
+@login_required
+def addfav(request):
+  data = json.loads(request.body)
+  data = data['newFav']
+  title = data['title']
+  image = data['image']
+  instructions = data['instructions']
+  ingredients = data['ingredients']
+  is_fav = True
+  favorite = Favorite(user = request.user, is_fav = is_fav, image = image, title = title, instructions = instructions, ingredients = ingredients)
+  favorite.save()
+
+  return HttpResponseRedirect(reverse('fudr:index'))
+
+@login_required
+def getfav(request):
+  favorites = Favorite.objects.all().filter(user = request.user)
+  fav_recipes=[]
+  for recipes in favorites:
+    fav_recipes.append({
+                "title" : recipes.title,
+                "instructions" : recipes.instructions.replace("[", "").replace("]", "").split("','"),
+                "ingredients" : recipes.ingredients.replace("[", "").replace("]", "").split("','"),
+                "id": recipes.id,
+                
+            })
+  return JsonResponse ({"fav_recipes" : fav_recipes})
+
+@login_required
+def deletefav(request):
+  data = json.loads(request.body)
+  delete_id = data['fav_id']
+  fav = Favorite.objects.get(id = delete_id)
+  fav.delete()
+  return HttpResponseRedirect(reverse('fudr:index'))
+
+
+

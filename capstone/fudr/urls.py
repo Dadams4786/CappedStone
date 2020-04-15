@@ -10,7 +10,7 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('register_user/', views.register_user, name='register_user'),
     path('logout/', views.logout, name='logout'),
-    
-    
-    
+    path('addfav/', views.addfav, name='addfav'),    
+    path('getfav/', views.getfav, name='getfav'),
+    path('deletefav/', views.deletefav, name='deletefav'),
 ]

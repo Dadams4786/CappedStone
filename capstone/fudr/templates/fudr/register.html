@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,25 +6,87 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
   <title>Document</title>
+  <style>
+    .bigDiv {
+      width: 100vw;
+      height: 100vh;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background-color: #E85D0C;
+
+    }
+
+    .centerbar {
+      height: 100%;
+      width: 50vw;
+      margin: 0 auto;
+      background-color: #018F83;
+      box-shadow: 0px 0px 21px 8px rgba(181, 72, 9, 1);
+    }
+
+    .register {
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .nameAndPass {
+      margin: 0 auto;
+      width: 45vw;
+    }
+
+    .login {
+      background-color: #E85D0C;
+    }
+  </style>
 </head>
 
 <body>
-  <v-app>
-    <h1>Register</h1>
-    {% if message == 'already_taken' %}<span>That username is already taken</span>{% endif %}
-    <form action="{% url 'fudr:register_user' %}" method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      <input type="text" name="username" placeholder="username" />
-      <input type="password" name="password" placeholder="password" />
-      <input type="text" name="email" placeholder="email" />
-      <input type="file" name="image" placeholder="image" accept="image/*" />
-      <button type="submit">register</button>
-    </form>
-    <a href="{% url 'fudr:login' %}">login</a>
-  </v-app>
+  <div id="app">
+    <v-app>
+      <div class="bigDiv">
+        <div class="centerbar">
+          <v-app-bar>
+            <v-toolbar-title class="header" height="200">
+              <v-img class="headerLogo" src="{% static 'fudr/logo-B-transparent.png' %}" height="175px" contain>
+              </v-img>
+            </v-toolbar-title>
+            <v-spacer></v-spacer>
+          </v-app-bar>
+          <h1 class="register">Register</h1>
+          {% if message == 'already_taken' %}<span>That username is already taken</span>{% endif %}
+          <form action="{% url 'fudr:register_user' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="nameAndPass">
+              <v-text-field type="text" label="Username" name="username" single-line solo></v-text-field>
+              <v-text-field type="password" name="password" label="Password" class="input-group--focused" single-line
+                solo></v-text-field>
+              <v-text-field type="text" label="email" name="email" single-line solo></v-text-field>
+            </div>
+            <div class="register">
+              <v-btn type="submit">Register</v-btn>
+              <v-btn class="login" href="{% url 'fudr:login' %}">login</v-btn>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </v-app>
+  </div>
 </body>
+<script>
+  new Vue({
+    el: '#app',
+    vuetify: new Vuetify(),
+    delimiters: ['[[', ']]'],
+
+  })
+</script>
 
 </html>
